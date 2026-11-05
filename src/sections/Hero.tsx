@@ -65,7 +65,7 @@ export default function Hero() {
     }
   }, [compact])
 
-  // No desktop o quadro encosta na lateral direita do texto: o chef sai dessa borda.
+  // No desktop o quadro encosta no fim da frase "Deixe com": o chef sai dessa borda.
   useLayoutEffect(() => {
     const el = root.current
     const box = chef.current?.parentElement
@@ -76,11 +76,11 @@ export default function Hero() {
         box.style.transform = ''
         return
       }
-      const copy = el.querySelector('.hero-copy')
-      if (!copy) return
+      const phrase = el.querySelector('.hero-title')
+      if (!phrase) return
       box.style.transform = ''
       const range = document.createRange()
-      const walker = document.createTreeWalker(copy, NodeFilter.SHOW_TEXT)
+      const walker = document.createTreeWalker(phrase, NodeFilter.SHOW_TEXT)
       let textRight = 0
       let node = walker.nextNode()
       while (node) {

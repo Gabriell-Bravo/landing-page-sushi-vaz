@@ -315,9 +315,10 @@ html.lenis body {
   padding: 8rem var(--pad) 9rem;
   overflow: hidden;
 }
-/* Chef (vídeo sem fundo): ocupa a coluna do meio, sem encostar no texto nem na foto. */
+/* Chef (vídeo sem fundo). No desktop o script encosta o quadro na frase. */
 .hero-chef {
   position: relative;
+  z-index: 1;
   justify-self: center;
   align-self: center;
   width: 100%;
@@ -330,16 +331,12 @@ html.lenis body {
   height: 100%;
   object-fit: contain;
 }
-.hero-chef-reveal {
-  position: absolute;
-  inset: 0;
-  background: var(--cream);
-  pointer-events: none;
-  animation: chef-reveal 1s var(--ease) 0.4s forwards;
+.hero-copy {
+  position: relative;
+  z-index: 2;
 }
-@keyframes chef-reveal {
-  from { opacity: 1; }
-  to { opacity: 0; }
+.hero-chef-reveal {
+  display: none;
 }
 .hero-title {
   font-family: var(--serif);
@@ -988,15 +985,12 @@ html.lenis body {
   .hero-visual {
     display: none;
   }
-  /* Mesmo tamanho de antes, encostado na borda esquerda para o chef entrar por fora da tela. */
+  /* Menor que o tamanho anterior, encostado na borda esquerda para o chef entrar por fora da tela. */
   .hero-chef {
     display: block;
-    width: min(58%, 230px);
+    width: min(40%, 150px);
     justify-self: start;
     margin-left: calc(50% - 50vw);
-  }
-  .hero-chef-reveal {
-    display: none;
   }
   .hero-kanji {
     display: none;
