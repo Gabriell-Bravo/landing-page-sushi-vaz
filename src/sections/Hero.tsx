@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'motion/react'
 import { ArrowDown, ArrowUpRight } from 'lucide-react'
 import { gsap } from '../lib/gsap'
@@ -62,53 +62,6 @@ export default function Hero() {
     return () => {
       io.disconnect()
       stop()
-    }
-  }, [compact])
-
-  // No desktop a borda da frase corta o vídeo, como a borda da tela no celular.
-  // O desenho não começa no pixel 0 do quadro: cerca de 20% fica atrás da frase.
-  useLayoutEffect(() => {
-    const el = root.current
-    const box = chef.current?.parentElement
-    if (!el || !box) return
-
-    const place = () => {
-      box.style.transform = ''
-      box.style.clipPath = ''
-      const lead = el.querySelector<HTMLElement>('.hero-lead')
-      if (lead) lead.style.maxWidth = ''
-      if (window.matchMedia(COMPACT).matches) return
-      const phrase = el.querySelector('.hero-title')
-      if (!phrase) return
-      const range = document.createRange()
-      const walker = document.createTreeWalker(phrase, NodeFilter.SHOW_TEXT)
-      let textRight = 0
-      let node = walker.nextNode()
-      while (node) {
-        if (node.textContent?.trim()) {
-          range.selectNodeContents(node)
-          const rects = range.getClientRects()
-          for (let i = 0; i < rects.length; i++) textRight = Math.max(textRight, rects[i].right)
-        }
-        node = walker.nextNode()
-      }
-      const { left, width } = box.getBoundingClientRect()
-      const overlap = width * 0.22
-      box.style.transform = `translate3d(${textRight - left - overlap}px, 0, 0)`
-      box.style.clipPath = `inset(0 0 0 ${overlap}px)`
-      const phraseLeft = phrase.getBoundingClientRect().left
-      if (lead) lead.style.maxWidth = `${Math.max(0, textRight - phraseLeft)}px`
-    }
-
-    place()
-    const ro = new ResizeObserver(place)
-    ro.observe(el)
-    document.fonts?.ready.then(place)
-    return () => {
-      ro.disconnect()
-      box.style.transform = ''
-      box.style.clipPath = ''
-      el.querySelector<HTMLElement>('.hero-lead')?.style.setProperty('max-width', '')
     }
   }, [compact])
 
