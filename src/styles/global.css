@@ -988,11 +988,10 @@ html.lenis body {
   .hero-visual {
     display: none;
   }
-  /* O quadro encosta na borda esquerda: o chef entra por fora da tela. */
+  /* Mesmo tamanho de antes, encostado na borda esquerda para o chef entrar por fora da tela. */
   .hero-chef {
     display: block;
-    width: 100vw;
-    max-width: none;
+    width: min(58%, 230px);
     justify-self: start;
     margin-left: calc(50% - 50vw);
   }
