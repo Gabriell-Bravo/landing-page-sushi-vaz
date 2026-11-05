@@ -87,7 +87,8 @@ export default function Hero() {
       while (node) {
         if (node.textContent?.trim()) {
           range.selectNodeContents(node)
-          for (const rect of range.getClientRects()) textRight = Math.max(textRight, rect.right)
+          const rects = range.getClientRects()
+          for (let i = 0; i < rects.length; i++) textRight = Math.max(textRight, rects[i].right)
         }
         node = walker.nextNode()
       }
