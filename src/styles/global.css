@@ -985,13 +985,19 @@ html.lenis body {
   .hero-title {
     font-size: clamp(3.6rem, 15vw, 6.4rem);
   }
-  .hero-chef {
-    width: min(58%, 230px);
-    justify-self: center;
-    /* no celular a coluna é única; a largura vem do próprio elemento */
-  }
   .hero-visual {
-    width: min(86%, 380px);
+    display: none;
+  }
+  /* O quadro encosta na borda esquerda: o chef entra por fora da tela. */
+  .hero-chef {
+    display: block;
+    width: 100vw;
+    max-width: none;
+    justify-self: start;
+    margin-left: calc(50% - 50vw);
+  }
+  .hero-chef-reveal {
+    display: none;
   }
   .hero-kanji {
     display: none;

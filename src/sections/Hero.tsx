@@ -16,10 +16,21 @@ const slides = [
 /** Tempo, em milissegundos, que cada foto fica na tela. */
 const SLIDE_MS = 2000
 
+/** Mesmo corte do layout: abaixo disso as fotos do nigiri somem. */
+const COMPACT = '(max-width: 899px)'
+
 export default function Hero() {
   const root = useRef<HTMLElement>(null)
   const chef = useRef<HTMLVideoElement>(null)
   const [slide, setSlide] = useState(0)
+  const [compact, setCompact] = useState(() => window.matchMedia(COMPACT).matches)
+
+  useEffect(() => {
+    const mq = window.matchMedia(COMPACT)
+    const sync = () => setCompact(mq.matches)
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
 
   // O vídeo toca uma única vez e termina na pose final, com os sushis flutuando,
   // e assim fica até a página ser recarregada. Quem prefere menos movimento já vê a pose final.
@@ -30,16 +41,40 @@ export default function Hero() {
     v.currentTime = Math.max(0, v.duration - 0.05)
   }
 
-  useEffect(() => bindMutedAutoplay(chef.current, '/chef.mp4'), [])
+  useEffect(() => {
+    const v = chef.current
+    if (!v) return
+
+    // No celular o chef fica abaixo do texto: só começa a andar quando entra na tela,
+    // para a entrada pela borda não acontecer fora de vista.
+    if (!compact) return bindMutedAutoplay(v, '/chef.mp4')
+
+    let stop = () => {}
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return
+        io.disconnect()
+        stop = bindMutedAutoplay(v, '/chef.mp4')
+      },
+      { threshold: 0.45 },
+    )
+    io.observe(v)
+    return () => {
+      io.disconnect()
+      stop()
+    }
+  }, [compact])
 
   // Troca a foto da abertura a cada 2 segundos (parada para quem prefere menos movimento).
   useEffect(() => {
+    if (compact) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const id = window.setInterval(() => setSlide((s) => (s + 1) % slides.length), SLIDE_MS)
     return () => window.clearInterval(id)
-  }, [])
+  }, [compact])
 
   useEffect(() => {
+    if (compact) return
     const el = root.current
     if (!el) return
     const mm = gsap.matchMedia(el)
@@ -54,7 +89,7 @@ export default function Hero() {
     })
 
     return () => mm.revert()
-  }, [])
+  }, [compact])
 
   return (
     <section className="hero" id="inicio" ref={root}>
@@ -120,7 +155,7 @@ export default function Hero() {
         <video
           ref={chef}
           src={chefVideoSrc()}
-          autoPlay
+          autoPlay={!compact}
           muted
           playsInline
           preload="auto"
@@ -130,31 +165,33 @@ export default function Hero() {
         <span className="hero-chef-reveal" />
       </div>
 
-      <div className="hero-visual">
-        <div className="hero-sun-drift">
-          <div className="hero-sun" />
+      {!compact && (
+        <div className="hero-visual">
+          <div className="hero-sun-drift">
+            <div className="hero-sun" />
+          </div>
+          <motion.div
+            className="hero-photo"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {slides.map((s, i) => (
+              <div key={s.src} className={i === slide ? 'hero-slide is-active' : 'hero-slide'} aria-hidden={i !== slide}>
+                <img
+                  src={s.src}
+                  alt={s.alt}
+                  style={{ objectPosition: s.pos }}
+                  fetchPriority={i === 0 ? 'high' : undefined}
+                />
+              </div>
+            ))}
+          </motion.div>
+          <span className="hero-kanji" aria-hidden="true">
+            おまかせ
+          </span>
         </div>
-        <motion.div
-          className="hero-photo"
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        >
-          {slides.map((s, i) => (
-            <div key={s.src} className={i === slide ? 'hero-slide is-active' : 'hero-slide'} aria-hidden={i !== slide}>
-              <img
-                src={s.src}
-                alt={s.alt}
-                style={{ objectPosition: s.pos }}
-                fetchPriority={i === 0 ? 'high' : undefined}
-              />
-            </div>
-          ))}
-        </motion.div>
-        <span className="hero-kanji" aria-hidden="true">
-          おまかせ
-        </span>
-      </div>
+      )}
 
       <a className="hero-scroll" href="#experiencia" aria-label="Rolar para a próxima seção">
         <ArrowDown size={16} /> Role
