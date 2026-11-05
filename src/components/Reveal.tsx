@@ -17,7 +17,7 @@ export function Reveal({ children, delay = 0, y = 28, className }: RevealProps) 
       className={className}
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-70px' }}
+      viewport={{ once: true, margin: '0px 0px -70px 0px' }}
       transition={{ duration: 0.9, delay, ease }}
     >
       {children}
@@ -42,7 +42,7 @@ export function Headline({ lines, as: Tag = 'h2', className, delay = 0 }: Headli
             className="mask-inner"
             initial={{ y: '112%' }}
             whileInView={{ y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
+            viewport={{ once: true, margin: '0px 0px -60px 0px' }}
             transition={{ duration: 1.05, delay: delay + i * 0.12, ease }}
           >
             {line}

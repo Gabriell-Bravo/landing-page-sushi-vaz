@@ -27,6 +27,7 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  overflow-x: clip;
 }
 
 body {
@@ -35,7 +36,6 @@ body {
   font-family: var(--sans);
   font-size: 1rem;
   line-height: 1.6;
-  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -222,15 +222,20 @@ html.lenis body {
   z-index: 60;
   width: clamp(170px, 17vw, 260px);
   pointer-events: none;
-  will-change: transform;
+  -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 76%, transparent 100%);
+  mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 76%, transparent 100%);
 }
 .nav-fish video {
   display: block;
   width: 100%;
   height: auto;
   filter: url(#koi-match);
-  -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 76%, transparent 100%);
-  mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 76%, transparent 100%);
+}
+/* No Safari/iPhone, filtro SVG no vídeo deixa a carpa invisível. */
+@supports (font: -apple-system-body) {
+  .nav-fish video {
+    filter: none;
+  }
 }
 .nav.is-scrolled {
   background: rgba(244, 238, 227, 0.88);
@@ -312,6 +317,7 @@ html.lenis body {
 }
 /* Chef (vídeo sem fundo): ocupa a coluna do meio, sem encostar no texto nem na foto. */
 .hero-chef {
+  position: relative;
   justify-self: center;
   align-self: center;
   width: 100%;
@@ -323,6 +329,17 @@ html.lenis body {
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+.hero-chef-reveal {
+  position: absolute;
+  inset: 0;
+  background: var(--cream);
+  pointer-events: none;
+  animation: chef-reveal 1s var(--ease) 0.4s forwards;
+}
+@keyframes chef-reveal {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 .hero-title {
   font-family: var(--serif);
@@ -1051,6 +1068,10 @@ html.lenis body {
   }
   .kaitai-sun {
     transform: translateY(-50%);
+  }
+  .hero-chef-reveal {
+    animation: none;
+    opacity: 0;
   }
   .house-photo img,
   .house:hover .house-photo img {

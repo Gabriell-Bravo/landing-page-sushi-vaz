@@ -18,7 +18,7 @@ export default function Waves({ background, color = '#171412', className }: Wave
     const el = root.current
     if (!el || !layer.current) return
     const mm = gsap.matchMedia()
-    mm.add('(prefers-reduced-motion: no-preference)', () => {
+    mm.add('(not (prefers-reduced-motion: reduce))', () => {
       gsap.to(layer.current, {
         x: -80,
         ease: 'none',

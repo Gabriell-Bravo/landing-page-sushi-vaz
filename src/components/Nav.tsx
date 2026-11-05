@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { Menu, X } from 'lucide-react'
 import { gsap } from '../lib/gsap'
+import { bindMutedAutoplay } from '../lib/playVideo'
 import { waLink } from '../data/site'
 
 /** Posição da cabeça da carpa dentro do quadro do vídeo (fração da largura). */
@@ -40,9 +41,11 @@ export default function Nav() {
       return
     }
 
+    const stopVideo = bindMutedAutoplay(vid)
     bar.setAttribute('data-intro', '')
     bar.style.setProperty('--reveal', '0px')
 
+    // left/top em vez de transform: no iPhone o vídeo some se o pai tiver transform.
     const ctx = gsap.context(() => {
       const width = fishEl.offsetWidth
       const barH = bar.offsetHeight
@@ -51,8 +54,8 @@ export default function Nav() {
       const place = () => {
         const t = (state.x + width) / (vw + width)
         const bob = Math.sin(t * Math.PI * 5) * 7
-        const tilt = Math.cos(t * Math.PI * 5) * 3
-        gsap.set(fishEl, { x: state.x, y: barH / 2 - fishEl.offsetHeight / 2 + bob, rotation: tilt })
+        fishEl.style.left = `${state.x}px`
+        fishEl.style.top = `${barH / 2 - fishEl.offsetHeight / 2 + bob}px`
         bar.style.setProperty('--reveal', `${Math.max(0, state.x + width * FISH_HEAD)}px`)
       }
       place()
@@ -67,9 +70,12 @@ export default function Nav() {
     })
 
     return () => {
+      stopVideo()
       ctx.revert()
       bar.removeAttribute('data-intro')
       bar.style.removeProperty('--reveal')
+      fishEl.style.removeProperty('left')
+      fishEl.style.removeProperty('top')
     }
   }, [])
 
@@ -82,9 +88,9 @@ export default function Nav() {
 
   return (
     <>
-    {/* Ajusta o fundo creme do vídeo para ficar igual ao fundo do site. */}
+    {/* Ajusta o fundo creme do vídeo para ficar igual ao fundo do site. No Safari o filtro esconde o vídeo, então lá ele fica desligado no CSS. */}
     <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true" focusable="false">
-      <filter id="koi-match" colorInterpolationFilters="sRGB">
+      <filter id="koi-match" colorInterpolationFilters="sRGB" x="0" y="0" width="100%" height="100%">
         <feComponentTransfer>
           <feFuncR type="linear" slope="0.972" />
           <feFuncG type="linear" slope="0.975" />

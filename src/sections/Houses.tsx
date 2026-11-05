@@ -29,7 +29,7 @@ export default function Houses() {
             key={h.id}
             initial={{ opacity: 0, y: 48 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
+            viewport={{ once: true, margin: '0px 0px -80px 0px' }}
             transition={{ duration: 0.95, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] }}
             whileHover={{ y: -6 }}
           >

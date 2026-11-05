@@ -13,7 +13,7 @@ export default function Kaitai() {
     if (!el) return
     const mm = gsap.matchMedia(el)
 
-    mm.add('(prefers-reduced-motion: no-preference)', () => {
+    mm.add('(not (prefers-reduced-motion: reduce))', () => {
       // O sol vermelho cresce atrás da cabeça do atum.
       gsap.fromTo(
         '.kaitai-sun',

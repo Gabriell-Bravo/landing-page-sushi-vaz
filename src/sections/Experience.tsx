@@ -21,7 +21,7 @@ export default function Experience() {
     if (!el) return
     const mm = gsap.matchMedia(el)
 
-    mm.add('(prefers-reduced-motion: no-preference)', () => {
+    mm.add('(not (prefers-reduced-motion: reduce))', () => {
       // A montagem toca sozinha, sem depender da rolagem: começa quando a seção aparece na tela.
       const tl = gsap
         .timeline({ paused: true, defaults: { ease: 'power2.out' } })

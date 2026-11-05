@@ -9,7 +9,7 @@ export default function Team() {
     const el = root.current
     if (!el) return
     const mm = gsap.matchMedia(el)
-    mm.add('(prefers-reduced-motion: no-preference)', () => {
+    mm.add('(not (prefers-reduced-motion: reduce))', () => {
       gsap.fromTo(
         '.team-bg img',
         { yPercent: -9, scale: 1.12 },

@@ -5,6 +5,7 @@ import { gsap } from '../lib/gsap'
 import Waves from '../animations/Waves'
 import { Headline } from '../components/Reveal'
 import { waLink } from '../data/site'
+import { bindMutedAutoplay, chefVideoSrc } from '../lib/playVideo'
 
 const slides = [
   { src: '/fotos/nigiri-vieira.jpg', alt: 'Nigiri de vieira com ouriço, caviar e uma flor comestível', pos: '48% 50%' },
@@ -29,6 +30,8 @@ export default function Hero() {
     v.currentTime = Math.max(0, v.duration - 0.05)
   }
 
+  useEffect(() => bindMutedAutoplay(chef.current, '/chef.mp4'), [])
+
   // Troca a foto da abertura a cada 2 segundos (parada para quem prefere menos movimento).
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -41,7 +44,7 @@ export default function Hero() {
     if (!el) return
     const mm = gsap.matchMedia(el)
 
-    mm.add('(prefers-reduced-motion: no-preference)', () => {
+    mm.add('(not (prefers-reduced-motion: reduce))', () => {
       const scrollOpts = { trigger: el, start: 'top top', end: 'bottom top', scrub: 0.8 }
 
       // O sol nasce e depois sobe devagar com a rolagem.
@@ -113,16 +116,10 @@ export default function Hero() {
         </motion.p>
       </div>
 
-      <motion.div
-        className="hero-chef"
-        aria-hidden="true"
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      >
+      <div className="hero-chef" aria-hidden="true">
         <video
           ref={chef}
-          src="/chef.webm"
+          src={chefVideoSrc()}
           autoPlay
           muted
           playsInline
@@ -130,7 +127,8 @@ export default function Hero() {
           tabIndex={-1}
           onLoadedMetadata={freezeChef}
         />
-      </motion.div>
+        <span className="hero-chef-reveal" />
+      </div>
 
       <div className="hero-visual">
         <div className="hero-sun-drift">
