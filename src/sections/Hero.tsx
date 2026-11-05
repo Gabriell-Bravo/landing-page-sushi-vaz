@@ -1,0 +1,168 @@
+import { useEffect, useRef, useState } from 'react'
+import { motion } from 'motion/react'
+import { ArrowDown, ArrowUpRight } from 'lucide-react'
+import { gsap } from '../lib/gsap'
+import Waves from '../animations/Waves'
+import { Headline } from '../components/Reveal'
+import { waLink } from '../data/site'
+
+const slides = [
+  { src: '/fotos/nigiri-vieira.jpg', alt: 'Nigiri de vieira com ouriço, caviar e uma flor comestível', pos: '48% 50%' },
+  { src: '/fotos/nigiri-atum.jpg', alt: 'Nigiri de atum com corte brilhante', pos: '42% 60%' },
+  { src: '/fotos/gunkan-uni.jpg', alt: 'Gunkans de ouriço, ikura e caviar', pos: '50% 55%' },
+]
+
+/** Tempo, em milissegundos, que cada foto fica na tela. */
+const SLIDE_MS = 2000
+
+export default function Hero() {
+  const root = useRef<HTMLElement>(null)
+  const chef = useRef<HTMLVideoElement>(null)
+  const [slide, setSlide] = useState(0)
+
+  // O vídeo toca uma única vez e termina na pose final, com os sushis flutuando,
+  // e assim fica até a página ser recarregada. Quem prefere menos movimento já vê a pose final.
+  const freezeChef = () => {
+    const v = chef.current
+    if (!v || !window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    v.pause()
+    v.currentTime = Math.max(0, v.duration - 0.05)
+  }
+
+  // Troca a foto da abertura a cada 2 segundos (parada para quem prefere menos movimento).
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const id = window.setInterval(() => setSlide((s) => (s + 1) % slides.length), SLIDE_MS)
+    return () => window.clearInterval(id)
+  }, [])
+
+  useEffect(() => {
+    const el = root.current
+    if (!el) return
+    const mm = gsap.matchMedia(el)
+
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+      const scrollOpts = { trigger: el, start: 'top top', end: 'bottom top', scrub: 0.8 }
+
+      // O sol nasce e depois sobe devagar com a rolagem.
+      gsap.from('.hero-sun', { scale: 0.4, opacity: 0, duration: 1.8, ease: 'power3.out' })
+      gsap.to('.hero-sun-drift', { yPercent: 24, scale: 1.18, ease: 'none', scrollTrigger: scrollOpts })
+      gsap.to('.hero-photo img', { yPercent: 8, scale: 1.08, ease: 'none', scrollTrigger: scrollOpts })
+    })
+
+    return () => mm.revert()
+  }, [])
+
+  return (
+    <section className="hero" id="inicio" ref={root}>
+      <div className="hero-copy">
+        <motion.p
+          className="eyebrow"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.1 }}
+        >
+          Omakase · São Paulo e Rio de Janeiro
+        </motion.p>
+
+        <Headline
+          as="h1"
+          className="hero-title"
+          delay={0.2}
+          lines={['Deixe com', <>o <em>chef.</em></>]}
+        />
+
+        <motion.p
+          className="hero-lead"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.7 }}
+        >
+          Sente no balcão e acompanhe cada corte. Uma sequência de peças guiada
+          pelo que o mar trouxe hoje, servida na hora em que fica pronta.
+        </motion.p>
+
+        <motion.div
+          className="hero-actions"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.85 }}
+        >
+          <motion.a
+            className="btn"
+            href={waLink()}
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ y: -3 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            Reservar um lugar <ArrowUpRight size={16} />
+          </motion.a>
+          <motion.a className="btn btn--ghost" href="#casas" whileHover={{ y: -3 }} whileTap={{ scale: 0.97 }}>
+            Conhecer as casas
+          </motion.a>
+        </motion.div>
+
+        <motion.p
+          className="hero-tag"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 1.2 }}
+        >
+          Aqui não servimos salmão.
+        </motion.p>
+      </div>
+
+      <motion.div
+        className="hero-chef"
+        aria-hidden="true"
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <video
+          ref={chef}
+          src="/chef.webm"
+          autoPlay
+          muted
+          playsInline
+          preload="auto"
+          tabIndex={-1}
+          onLoadedMetadata={freezeChef}
+        />
+      </motion.div>
+
+      <div className="hero-visual">
+        <div className="hero-sun-drift">
+          <div className="hero-sun" />
+        </div>
+        <motion.div
+          className="hero-photo"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {slides.map((s, i) => (
+            <div key={s.src} className={i === slide ? 'hero-slide is-active' : 'hero-slide'} aria-hidden={i !== slide}>
+              <img
+                src={s.src}
+                alt={s.alt}
+                style={{ objectPosition: s.pos }}
+                fetchPriority={i === 0 ? 'high' : undefined}
+              />
+            </div>
+          ))}
+        </motion.div>
+        <span className="hero-kanji" aria-hidden="true">
+          おまかせ
+        </span>
+      </div>
+
+      <a className="hero-scroll" href="#experiencia" aria-label="Rolar para a próxima seção">
+        <ArrowDown size={16} /> Role
+      </a>
+
+      <Waves className="hero-waves" background="#f4eee3" color="#171412" />
+    </section>
+  )
+}
