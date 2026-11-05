@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { motion } from 'motion/react'
 import { ArrowDown, ArrowUpRight } from 'lucide-react'
 import { gsap } from '../lib/gsap'
@@ -62,6 +62,45 @@ export default function Hero() {
     return () => {
       io.disconnect()
       stop()
+    }
+  }, [compact])
+
+  // No desktop o quadro encosta na lateral direita do texto: o chef sai dessa borda.
+  useLayoutEffect(() => {
+    const el = root.current
+    const box = chef.current?.parentElement
+    if (!el || !box) return
+
+    const place = () => {
+      if (window.matchMedia(COMPACT).matches) {
+        box.style.transform = ''
+        return
+      }
+      const copy = el.querySelector('.hero-copy')
+      if (!copy) return
+      box.style.transform = ''
+      const range = document.createRange()
+      const walker = document.createTreeWalker(copy, NodeFilter.SHOW_TEXT)
+      let textRight = 0
+      let node = walker.nextNode()
+      while (node) {
+        if (node.textContent?.trim()) {
+          range.selectNodeContents(node)
+          for (const rect of range.getClientRects()) textRight = Math.max(textRight, rect.right)
+        }
+        node = walker.nextNode()
+      }
+      const shift = textRight - box.getBoundingClientRect().left
+      box.style.transform = `translate3d(${shift}px, 0, 0)`
+    }
+
+    place()
+    const ro = new ResizeObserver(place)
+    ro.observe(el)
+    document.fonts?.ready.then(place)
+    return () => {
+      ro.disconnect()
+      box.style.transform = ''
     }
   }, [compact])
 
