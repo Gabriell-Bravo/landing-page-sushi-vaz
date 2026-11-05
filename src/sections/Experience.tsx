@@ -10,7 +10,7 @@ const steps = [
 ]
 
 /** Intervalo, em segundos, entre o começo de uma montagem do sushi e o da próxima. */
-const LOOP_S = 15
+const LOOP_S = 5
 
 export default function Experience() {
   const root = useRef<HTMLElement>(null)
