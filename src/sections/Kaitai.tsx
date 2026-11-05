@@ -4,9 +4,11 @@ import { ArrowUpRight } from 'lucide-react'
 import { gsap } from '../lib/gsap'
 import { Headline, Reveal } from '../components/Reveal'
 import { waLink } from '../data/site'
+import { bindMutedAutoplay } from '../lib/playVideo'
 
 export default function Kaitai() {
   const root = useRef<HTMLElement>(null)
+  const video = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
     const el = root.current
@@ -14,7 +16,7 @@ export default function Kaitai() {
     const mm = gsap.matchMedia(el)
 
     mm.add('(not (prefers-reduced-motion: reduce))', () => {
-      // O sol vermelho cresce atrás da cabeça do atum.
+      // O sol vermelho cresce atrás do vídeo.
       gsap.fromTo(
         '.kaitai-sun',
         { scale: 0.08, yPercent: -50 },
@@ -30,19 +32,30 @@ export default function Kaitai() {
         { yPercent: -6, scale: 1.12 },
         { yPercent: 6, scale: 1.12, ease: 'none', scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true } },
       )
-      gsap.fromTo(
-        '.kaitai-photo--a',
-        { yPercent: 8 },
-        { yPercent: -8, ease: 'none', scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true } },
-      )
-      gsap.fromTo(
-        '.kaitai-photo--b',
-        { yPercent: -10 },
-        { yPercent: 14, ease: 'none', scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true } },
-      )
     })
 
     return () => mm.revert()
+  }, [])
+
+  useEffect(() => {
+    const v = video.current
+    if (!v) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    let stop = () => {}
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return
+        io.disconnect()
+        stop = bindMutedAutoplay(v)
+      },
+      { threshold: 0.35 },
+    )
+    io.observe(v)
+    return () => {
+      io.disconnect()
+      stop()
+    }
   }, [])
 
   return (
@@ -81,23 +94,17 @@ export default function Kaitai() {
         </Reveal>
       </div>
 
-      <div className="kaitai-photos">
-        <div className="kaitai-photo kaitai-photo--a">
-          <img
-            src="/fotos/kaitai-cabeca.jpg"
-            alt="Chef erguendo a cabeça de um atum inteiro no balcão"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-        <div className="kaitai-photo kaitai-photo--b">
-          <img
-            src="/fotos/kaitai-corte.jpg"
-            alt="Equipe abrindo um atum inteiro sobre a tábua, durante o Kaitai"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
+      <div className="kaitai-media">
+        <video
+          ref={video}
+          src="/kaitai-preview.mp4"
+          muted
+          playsInline
+          loop
+          controls
+          preload="metadata"
+          aria-label="Cenas de uma edição anterior da cerimônia Kaitai"
+        />
       </div>
     </section>
   )
