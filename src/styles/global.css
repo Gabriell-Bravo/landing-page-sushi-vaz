@@ -978,9 +978,9 @@ html.lenis body {
 
   .hero {
     grid-template-columns: 1fr;
-    gap: 2.5rem;
+    gap: 0;
     padding-top: 7rem;
-    padding-bottom: 8rem;
+    padding-bottom: 6.5rem;
   }
   .hero-title {
     font-size: clamp(3.6rem, 15vw, 6.4rem);
@@ -988,7 +988,7 @@ html.lenis body {
   .hero-visual {
     display: none;
   }
-  /* Tamanho de antes, encostado na borda esquerda para o chef entrar por fora da tela. */
+  /* Logo abaixo da frase final, saindo pela borda esquerda. */
   .hero-chef {
     display: block;
     width: min(58%, 230px);
