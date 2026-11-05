@@ -37,17 +37,21 @@ export function Headline({ lines, as: Tag = 'h2', className, delay = 0 }: Headli
   return (
     <Tag className={className}>
       {lines.map((line, i) => (
-        <span className="mask" key={i}>
+        <motion.span
+          className="mask"
+          key={i}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: '0px 0px -40px 0px' }}
+        >
           <motion.span
             className="mask-inner"
-            initial={{ y: '112%' }}
-            whileInView={{ y: 0 }}
-            viewport={{ once: true, margin: '0px 0px -60px 0px' }}
+            variants={{ hidden: { y: '112%' }, show: { y: 0 } }}
             transition={{ duration: 1.05, delay: delay + i * 0.12, ease }}
           >
             {line}
           </motion.span>
-        </span>
+        </motion.span>
       ))}
     </Tag>
   )

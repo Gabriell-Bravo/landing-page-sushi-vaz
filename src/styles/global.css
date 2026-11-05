@@ -621,7 +621,7 @@ html.lenis body {
 .kaitai {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
   align-items: center;
   gap: 4rem;
   padding: 10rem var(--pad);
@@ -670,7 +670,7 @@ html.lenis body {
   position: relative;
   z-index: 2;
   justify-self: end;
-  width: min(100%, 400px);
+  width: min(100%, 640px);
   aspect-ratio: 9 / 16;
   overflow: hidden;
   border-radius: 2px;
@@ -1072,7 +1072,11 @@ html.lenis body {
   }
   .kaitai-media {
     justify-self: center;
-    width: min(100%, 360px);
+    width: 100%;
+  }
+  .team .h2 {
+    font-size: clamp(1.7rem, 8.8vw, 2.65rem);
+    line-height: 1.02;
   }
 
   .houses {
