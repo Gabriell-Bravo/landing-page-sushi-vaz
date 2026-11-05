@@ -65,20 +65,21 @@ export default function Hero() {
     }
   }, [compact])
 
-  // No desktop o quadro encosta no fim da frase "Deixe com": o chef sai dessa borda.
+  // No desktop a borda da frase corta o vídeo, como a borda da tela no celular.
+  // O desenho não começa no pixel 0 do quadro: cerca de 20% fica atrás da frase.
   useLayoutEffect(() => {
     const el = root.current
     const box = chef.current?.parentElement
     if (!el || !box) return
 
     const place = () => {
-      if (window.matchMedia(COMPACT).matches) {
-        box.style.transform = ''
-        return
-      }
+      box.style.transform = ''
+      box.style.clipPath = ''
+      const lead = el.querySelector<HTMLElement>('.hero-lead')
+      if (lead) lead.style.maxWidth = ''
+      if (window.matchMedia(COMPACT).matches) return
       const phrase = el.querySelector('.hero-title')
       if (!phrase) return
-      box.style.transform = ''
       const range = document.createRange()
       const walker = document.createTreeWalker(phrase, NodeFilter.SHOW_TEXT)
       let textRight = 0
@@ -90,8 +91,12 @@ export default function Hero() {
         }
         node = walker.nextNode()
       }
-      const shift = textRight - box.getBoundingClientRect().left
-      box.style.transform = `translate3d(${shift}px, 0, 0)`
+      const { left, width } = box.getBoundingClientRect()
+      const overlap = width * 0.22
+      box.style.transform = `translate3d(${textRight - left - overlap}px, 0, 0)`
+      box.style.clipPath = `inset(0 0 0 ${overlap}px)`
+      const phraseLeft = phrase.getBoundingClientRect().left
+      if (lead) lead.style.maxWidth = `${Math.max(0, textRight - phraseLeft)}px`
     }
 
     place()
@@ -101,6 +106,8 @@ export default function Hero() {
     return () => {
       ro.disconnect()
       box.style.transform = ''
+      box.style.clipPath = ''
+      el.querySelector<HTMLElement>('.hero-lead')?.style.setProperty('max-width', '')
     }
   }, [compact])
 

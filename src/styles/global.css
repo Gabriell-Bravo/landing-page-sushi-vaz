@@ -988,7 +988,7 @@ html.lenis body {
   /* Menor que o tamanho anterior, encostado na borda esquerda para o chef entrar por fora da tela. */
   .hero-chef {
     display: block;
-    width: min(40%, 150px);
+    width: min(32%, 120px);
     justify-self: start;
     margin-left: calc(50% - 50vw);
   }
